@@ -20,3 +20,9 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:12181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:19092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  nats:
+    image: nats:latest
+    container_name: nats
+    ports:
+      - "4222:4222"
+    restart: unless-stopped
