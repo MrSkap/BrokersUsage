@@ -1,22 +1,21 @@
 using Common.Configuration;
 using Confluent.Kafka;
-using Producer.Models.Contracts;
 using Producer.Models.Options;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
 namespace Producer.Application;
 
-public class Producer(TopicsConfiguration topicConfiguration, KafkaConfiguration kafkaConfiguration): IProducer
+public class Producer(TopicsConfiguration topicConfiguration, KafkaConfiguration kafkaConfiguration) : IProducer
 {
     private const string Topic = "test";
     private static readonly ILogger Logger = Log.ForContext<TopicInitializer>();
-    
+
     private readonly ProducerConfig _producerConfig = new()
     {
-        BootstrapServers = kafkaConfiguration.BootstrapServers,
+        BootstrapServers = kafkaConfiguration.BootstrapServers
     };
-    
+
     public async Task ProduceAsync(string message)
     {
         using var producer = new ProducerBuilder<string, string>(_producerConfig).Build();

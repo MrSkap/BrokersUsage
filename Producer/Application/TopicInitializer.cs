@@ -11,20 +11,21 @@ namespace Producer.Application;
 public class TopicInitializer(TopicsConfiguration topicConfiguration, KafkaConfiguration kafkaConfiguration)
 {
     private static readonly ILogger Logger = Log.ForContext<TopicInitializer>();
-    
-    private static readonly IDictionary<string, Func<TopicsConfiguration, TopicConfiguration>> TopicConfigs = new Dictionary<string, Func<TopicsConfiguration, TopicConfiguration>>
+
+    private static readonly IDictionary<string, Func<TopicsConfiguration, TopicConfiguration>> TopicConfigs =
+        new Dictionary<string, Func<TopicsConfiguration, TopicConfiguration>>
+        {
+            { KafkaConstants.KafkaDefaultName, configuration => configuration.Kafka },
+            { KafkaConstants.TestName, configuration => configuration.Test }
+        };
+
+    private readonly ProducerConfig _producerConfig = new()
     {
-        { KafkaConstants.KafkaDefaultName, configuration => configuration.Kafka },
-        { KafkaConstants.TestName, configuration => configuration.Test },
+        BootstrapServers = kafkaConfiguration.BootstrapServers
     };
-    
-    private readonly ProducerConfig _producerConfig = new ProducerConfig()
-    {
-        BootstrapServers = kafkaConfiguration.BootstrapServers,
-    };
-    
+
     /// <summary>
-    /// Инициализировать топики.
+    ///     Инициализировать топики.
     /// </summary>
     /// <returns>Таска.</returns>
     public async Task InitializeAsync()
@@ -35,12 +36,8 @@ public class TopicInitializer(TopicsConfiguration topicConfiguration, KafkaConfi
                    .Build())
         {
             foreach (var topicName in TopicConfigs.Keys)
-            {
                 if (!IsTopicExists(adminClient, topicName))
-                {
                     await CreateTopicAsync(adminClient, topicName);
-                }
-            }
         }
 
         Logger.Information("<- Initializing Kafka topics");
@@ -71,7 +68,7 @@ public class TopicInitializer(TopicsConfiguration topicConfiguration, KafkaConfi
             Configs = topicConfig!.Parameters,
             Name = topicName,
             NumPartitions = topicConfig.NumPartitions,
-            ReplicationFactor = topicConfig.ReplicationFactor,
+            ReplicationFactor = topicConfig.ReplicationFactor
         };
 
         try
@@ -82,10 +79,7 @@ public class TopicInitializer(TopicsConfiguration topicConfiguration, KafkaConfi
         {
             var error = ex.Results.First().Error.Code;
             Logger.Warning("Failed to create topic {Topic} {KafkaError}", topicName, error.ToString());
-            if (error != ErrorCode.TopicAlreadyExists)
-            {
-                throw;
-            }
+            if (error != ErrorCode.TopicAlreadyExists) throw;
         }
 
         Logger.Information("<- Creating topic {TopicName}", topicName);
@@ -101,7 +95,8 @@ public class TopicInitializer(TopicsConfiguration topicConfiguration, KafkaConfi
                 var error = x.Topics.FirstOrDefault(t => t.Topic == topicName)!.Error.Code;
                 return error != ErrorCode.NoError && error != ErrorCode.UnknownTopicOrPart;
             })
-            .WaitAndRetryForever(retry => TimeSpan.FromSeconds(10),(result, span) => Logger.Information("Retry to get metadata from {Topic} topic", topicName))
+            .WaitAndRetryForever(retry => TimeSpan.FromSeconds(10),
+                (result, span) => Logger.Information("Retry to get metadata from {Topic} topic", topicName))
             .Execute(() => adminClient.GetMetadata(topicName, TimeSpan.FromSeconds(10)));
         return metadata.Topics.FirstOrDefault(x => x.Topic == topicName && x.Error.Code == ErrorCode.NoError);
     }
@@ -112,7 +107,7 @@ public class TopicInitializer(TopicsConfiguration topicConfiguration, KafkaConfi
         var value = valueFunc?.Invoke(topicConfiguration);
         if (value is null)
             return null;
-        return new TopicConfiguration()
+        return new TopicConfiguration
         {
             NumPartitions = value.NumPartitions,
             Parameters = value.Parameters,

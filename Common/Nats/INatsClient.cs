@@ -1,6 +1,4 @@
-﻿using NATS.Client.Rx;
-
-namespace Common.Nats;
+﻿namespace Common.Nats;
 
 public interface INatsClient
 {

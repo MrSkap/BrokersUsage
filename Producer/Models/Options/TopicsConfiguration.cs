@@ -1,7 +1,7 @@
 namespace Producer.Models.Options;
 
 /// <summary>
-/// Настройки топика Кафки, используется при первоначальной инициализации.
+///     Настройки топика Кафки, используется при первоначальной инициализации.
 /// </summary>
 public class TopicsConfiguration
 {

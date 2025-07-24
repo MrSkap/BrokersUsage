@@ -9,16 +9,22 @@ namespace Common.Nats;
 public class NatsClient : INatsClient, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<NatsClient>();
-    private readonly NatsConnectionOptions _connectionOptions;
-    private readonly ConnectionFactory _connectionFactory;
-    private IConnection _currentConnection;
     private readonly Dictionary<string, SubscriptionObject> _activeSubscriptionObjects = new();
+    private readonly ConnectionFactory _connectionFactory;
+    private readonly NatsConnectionOptions _connectionOptions;
+    private IConnection _currentConnection;
 
     public NatsClient(NatsConnectionOptions connectionOptions)
     {
         _connectionOptions = connectionOptions;
         _connectionFactory = new ConnectionFactory();
         Connect();
+    }
+
+    public void Dispose()
+    {
+        _currentConnection.Dispose();
+        foreach (var active in _activeSubscriptionObjects) active.Value.Dispose();
     }
 
     public void PublishMessage(MessageBase message, string subject)
@@ -64,12 +70,6 @@ public class NatsClient : INatsClient, IDisposable
         _activeSubscriptionObjects.Add(subject, subscriptionObject);
 
         return observable;
-    }
-
-    public void Dispose()
-    {
-        _currentConnection.Dispose();
-        foreach (var active in _activeSubscriptionObjects) active.Value.Dispose();
     }
 
     private MessageBase? TryDeserialize(Msg message)

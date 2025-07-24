@@ -8,5 +8,4 @@ namespace Common.Nats;
 [ProtoInclude(2, typeof(HelloMessageResponse))]
 public class MessageBase
 {
-    
 }
