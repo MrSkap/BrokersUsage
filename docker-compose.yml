@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   zookeeper:
     image: harbor.infotecs.int/dep-mngmob-net/zookeeper:3.8.4-astra-smolensk1.8-6
@@ -20,9 +20,42 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:12181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:19092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
   nats:
     image: nats:latest
     container_name: nats
     ports:
       - "4222:4222"
+      - "8222:8222"
+    command: "--http_port 8222 --cluster nats://0.0.0.0:6222 --routes nats://nats:6222"
     restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - nats
+      - nats-exporter
+
+  nats-exporter:
+    image: natsio/prometheus-nats-exporter:latest
+    ports:
+      - "7777:7777"
+    command: "-connz -varz -subz http://127.0.0.1:8222"
+    depends_on:
+      - nats
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana-storage:
