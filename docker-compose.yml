@@ -27,7 +27,10 @@ services:
     ports:
       - "4222:4222"
       - "8222:8222"
-    command: "--http_port 8222 --cluster nats://0.0.0.0:6222 --routes nats://nats:6222"
+    volumes:
+      - ./nats.conf:/nats.conf
+      - ./nats-data:/data
+    command: "--http_port 8222 --cluster nats://0.0.0.0:6222 --routes nats://nats:6222; -c -c /nats.conf"
     restart: unless-stopped
 
   prometheus:

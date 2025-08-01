@@ -17,10 +17,10 @@ public class BaseMessageHandler : IBaseMessageHandler
         _mediator = mediator;
     }
 
-    public void StartMessageProcessing()
+    public void StartMessageProcessing(string serviceName = "")
     {
         Logger.Information("Start nats message processing");
-        _client.SubscribeOnSubject(NatsSubjectName.HelloSubject)
+        _client.SubscribeOnSubject($"{serviceName}.{NatsSubjectName.HelloSubject}")
             .Subscribe(OnMessage);
     }
 

@@ -2,5 +2,5 @@
 
 public interface IBaseMessageHandler
 {
-    void StartMessageProcessing();
+    void StartMessageProcessing(string serviceName = "");
 }

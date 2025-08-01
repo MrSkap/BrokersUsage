@@ -1,4 +1,5 @@
 using Common.Nats;
+using Common.Nats.Configuration;
 using Common.Nats.Extensions;
 using Common.Nats.Initializers;
 
@@ -20,6 +21,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-NatsInitializer.StartNatsProcessing(app.Services);
+NatsInitializer.StartNatsProcessing(app.Services, NatsServiceName.ConsumerService);
 
 app.Run();

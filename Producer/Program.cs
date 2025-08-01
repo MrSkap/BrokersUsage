@@ -1,9 +1,11 @@
 using Common.Configuration;
 using Common.Nats;
+using Common.Nats.Configuration;
 using Common.Nats.Extensions;
 using Common.Nats.Initializers;
 using Producer.Application;
 using Producer.Models.Options;
+using Producer.Services;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,7 @@ if (app.Environment.IsDevelopment())
 
 
 await app.Services.GetService<TopicInitializer>()!.InitializeAsync();
-NatsInitializer.StartNatsProcessing(app.Services);
+NatsInitializer.StartNatsProcessing(app.Services, NatsServiceName.ProducerService);
+await app.Services.GetRequiredService<IHelloAwaitService>().SendHelloAndWaitReplyAsync();
 
 app.Run();
