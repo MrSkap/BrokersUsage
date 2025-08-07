@@ -11,19 +11,19 @@ public class NatsClient : INatsClient, IDisposable
     private static readonly ILogger Logger = Log.ForContext<NatsClient>();
     private readonly Dictionary<string, SubscriptionObject> _activeSubscriptionObjects = new();
     private readonly ConnectionFactory _connectionFactory;
-    private readonly NatsConnectionOptions _connectionOptions;
-    private IConnection _currentConnection;
+    protected readonly NatsConnectionOptions ConnectionOptions;
+    protected IConnection CurrentConnection;
 
     public NatsClient(NatsConnectionOptions connectionOptions)
     {
-        _connectionOptions = connectionOptions;
+        ConnectionOptions = connectionOptions;
         _connectionFactory = new ConnectionFactory();
         Connect();
     }
 
     public void Dispose()
     {
-        _currentConnection.Dispose();
+        CurrentConnection.Dispose();
         foreach (var active in _activeSubscriptionObjects) active.Value.Dispose();
     }
 
@@ -31,11 +31,11 @@ public class NatsClient : INatsClient, IDisposable
     {
         try
         {
-            if (_currentConnection.State is not ConnState.CONNECTED) throw new Exception("No connection to nats");
+            if (CurrentConnection.State is not ConnState.CONNECTED) throw new Exception("No connection to nats");
 
             using var memoryStream = new MemoryStream();
             Serializer.Serialize(memoryStream, message);
-            _currentConnection.Publish(subject, memoryStream.GetBuffer());
+            CurrentConnection.Publish(subject, memoryStream.GetBuffer());
         }
         catch (Exception e)
         {
@@ -48,7 +48,7 @@ public class NatsClient : INatsClient, IDisposable
     {
         if (_activeSubscriptionObjects.TryGetValue(subject, out var activeSubscription))
             return activeSubscription.Observable;
-        var subscription = _currentConnection.SubscribeAsync(subject);
+        var subscription = CurrentConnection.SubscribeAsync(subject);
         var natsObservable = subscription.ToObservable();
         var observable = Observable.Create<MessageBase>(observer =>
         {
@@ -92,8 +92,8 @@ public class NatsClient : INatsClient, IDisposable
 
     private void Connect()
     {
-        _currentConnection = _connectionFactory.CreateConnection(
-            _connectionOptions.ConnectionString,
+        CurrentConnection = _connectionFactory.CreateConnection(
+            ConnectionOptions.ConnectionString,
             true);
     }
 

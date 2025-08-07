@@ -23,4 +23,10 @@ public static class NatsExtensions
         collection.AddTransient<IRequestHandler<NatsMessageProcessingRequest<HelloMessage>>, HelloMessageHandler>();
         return collection;
     }
+
+    public static IServiceCollection AddStreamProducer(this IServiceCollection collection)
+    {
+        collection.AddSingleton<IStreamInitializer, StreamInitializer>();
+        return collection;
+    }
 }

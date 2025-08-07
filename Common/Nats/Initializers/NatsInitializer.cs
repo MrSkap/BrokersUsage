@@ -10,4 +10,10 @@ public class NatsInitializer
         var handler = provider.GetService<IBaseMessageHandler>();
         handler?.StartMessageProcessing(serviceName);
     }
+
+    public static void InitNatsStreams(IServiceProvider provider)
+    {
+        var initializer = provider.GetRequiredService<IStreamInitializer>();
+        initializer.InitStreams();
+    }
 }
