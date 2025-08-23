@@ -10,7 +10,6 @@ public class BaseMessageHandler : IBaseMessageHandler
     private readonly INatsClient _client;
     private readonly IMediator _mediator;
 
-
     public BaseMessageHandler(INatsClient client, IMediator mediator)
     {
         _client = client;

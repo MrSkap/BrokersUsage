@@ -1,25 +1,5 @@
 version: '3.8'
 services:
-  zookeeper:
-    image: harbor.infotecs.int/dep-mngmob-net/zookeeper:3.8.4-astra-smolensk1.8-6
-    ports:
-      - "12181:12181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 12181
-      ZOOKEEPER_TICK_TIME: 2000
-  kafka:
-    image: harbor.infotecs.int/dep-mngmob-net/kafka:3.7.1-astra-smolensk1.8-19
-    depends_on:
-      - zookeeper
-    ports:
-      - "19092:19092"
-    links:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:12181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:19092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   nats:
     image: nats:latest
@@ -30,7 +10,7 @@ services:
     volumes:
       - ./nats.conf:/nats.conf
       - ./nats-data:/data
-    command: "--http_port 8222 --cluster nats://0.0.0.0:6222 --routes nats://nats:6222; -c -c /nats.conf"
+    command: "-c /nats.conf "
     restart: unless-stopped
 
   prometheus:

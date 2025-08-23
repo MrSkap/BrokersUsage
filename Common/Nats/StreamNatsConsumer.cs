@@ -1,6 +1,5 @@
 ﻿using System.Reactive.Linq;
 using System.Text;
-using Common.Nats.Configuration;
 using NATS.Client;
 using NATS.Client.JetStream;
 using Serilog;
@@ -22,10 +21,12 @@ public class StreamNatsConsumer : NatsClient, IStreamNatsConsumer, IDisposable
         foreach (var subscription in _activeSubscriptionObjects) subscription.Value.Dispose();
     }
 
-    public IObservable<MessageBase> SubscribeOnStreamAsync(string consumerName,
-        NatsStreamConfiguration streamConfiguration, string subject)
+    public IObservable<MessageBase> SubscribeOnStreamAsync(
+        string consumerName,
+        string stream,
+        string subject)
     {
-        InitConsumer(consumerName);
+        InitConsumer(consumerName, stream);
 
         var jetStream = CurrentConnection.CreateJetStreamContext();
 
@@ -37,7 +38,7 @@ public class StreamNatsConsumer : NatsClient, IStreamNatsConsumer, IDisposable
         var observable = Observable.Create<MessageBase>(observer =>
         {
             var opts = PushSubscribeOptions.Builder()
-                .WithStream(streamConfiguration.StreamName);
+                .WithStream(stream);
 
             subscription = jetStream.PushSubscribeAsync(subject, (_, args) =>
             {
@@ -64,7 +65,6 @@ public class StreamNatsConsumer : NatsClient, IStreamNatsConsumer, IDisposable
             }, false, opts.Build());
             return subscription;
         });
-        if (subscription is null) throw new ArgumentException($"Can't subscribe on subject: {subject}");
 
         _activeSubscriptionObjects.Add(subIndex, new StreamSubscriptionObject(observable, subscription));
         return observable;
@@ -93,7 +93,7 @@ public class StreamNatsConsumer : NatsClient, IStreamNatsConsumer, IDisposable
         return null;
     }
 
-    private void InitConsumer(string consumerName)
+    private void InitConsumer(string consumerName, string stream)
     {
         var consumerConfig = ConsumerConfiguration.Builder()
             .WithDurable(consumerName)
@@ -105,7 +105,8 @@ public class StreamNatsConsumer : NatsClient, IStreamNatsConsumer, IDisposable
             .Build();
 
         var jsm = CurrentConnection.CreateJetStreamManagementContext();
-        jsm.AddOrUpdateConsumer(consumerName, consumerConfig);
+
+        jsm.AddOrUpdateConsumer(stream, consumerConfig);
     }
 
     private class StreamSubscriptionObject : IDisposable

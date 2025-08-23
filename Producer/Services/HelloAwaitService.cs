@@ -7,7 +7,7 @@ using ILogger = Serilog.ILogger;
 
 namespace Producer.Services;
 
-public class HelloAwaitService
+public class HelloAwaitService : IHelloAwaitService
 {
     private static readonly ILogger Logger = Log.ForContext<HelloAwaitService>();
     private readonly INatsClient _natsClient;

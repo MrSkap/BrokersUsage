@@ -13,13 +13,15 @@ public static class NatsExtensions
         collection
             .AddSingleton<INatsClient, NatsClient>()
             .AddSingleton<IBaseMessageHandler, BaseMessageHandler>()
+            .AddSingleton<IBaseStreamMessageHandler, BaseStreamMessageHandler>()
+            .AddSingleton<IStreamNatsConsumer, StreamNatsConsumer>()
             .AddHandlers();
         return collection;
     }
 
     private static IServiceCollection AddHandlers(this IServiceCollection collection)
     {
-        collection.AddMediatR(x => { });
+        collection.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(BaseMessageHandler).Assembly); });
         collection.AddTransient<IRequestHandler<NatsMessageProcessingRequest<HelloMessage>>, HelloMessageHandler>();
         return collection;
     }
@@ -27,6 +29,7 @@ public static class NatsExtensions
     public static IServiceCollection AddStreamProducer(this IServiceCollection collection)
     {
         collection.AddSingleton<IStreamInitializer, StreamInitializer>();
+        collection.AddSingleton<IStreamNatsProducer, StreamNatsProducer>();
         return collection;
     }
 }

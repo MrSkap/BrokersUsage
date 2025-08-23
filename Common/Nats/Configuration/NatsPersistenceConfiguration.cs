@@ -3,5 +3,8 @@
 /// <summary>
 ///     Конфигурация стримов в NATS JetStream.
 /// </summary>
-/// <param name="Streams">Список стримов <see cref="NatsStreamConfiguration" />.</param>
-public record NatsPersistenceConfiguration(List<NatsStreamConfiguration> Streams);
+public class NatsPersistenceConfiguration
+{
+    public static string SectionName = "NatsStreams";
+    public List<NatsStreamConfiguration> Streams { get; set; } = [];
+}

@@ -1,4 +1,5 @@
-﻿using Common.Nats.Handlers;
+﻿using Common.Nats.Configuration;
+using Common.Nats.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Common.Nats.Initializers;
@@ -15,5 +16,13 @@ public class NatsInitializer
     {
         var initializer = provider.GetRequiredService<IStreamInitializer>();
         initializer.InitStreams();
+    }
+
+    public static void StartStreamsMessageProcessing(IServiceProvider provider)
+    {
+        var configuration = provider.GetRequiredService<NatsStreamSubscriptionConfiguration>();
+        var consumer = provider.GetRequiredService<IBaseStreamMessageHandler>();
+        foreach (var subscription in configuration.Subscriptions)
+            consumer.StartMessageProcessing(configuration.ConsumerId, subscription.Stream, subscription.Subject);
     }
 }

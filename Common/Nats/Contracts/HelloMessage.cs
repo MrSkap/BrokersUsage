@@ -3,7 +3,6 @@
 namespace Common.Nats.Contracts;
 
 [ProtoContract]
-[ProtoInclude(1, typeof(HelloMessageResponse))]
 public class HelloMessage : MessageBase
 {
     [ProtoMember(1)] public required string SenderName { get; set; }

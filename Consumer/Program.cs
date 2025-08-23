@@ -8,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<NatsConnectionOptions>(provider =>
-    builder.Configuration.GetSection("Nats").Get<NatsConnectionOptions>()!);
+    builder.Configuration.GetSection(NatsConnectionOptions.SectionName).Get<NatsConnectionOptions>()!);
+builder.Services.AddTransient<NatsStreamSubscriptionConfiguration>(provider =>
+    builder.Configuration.GetSection(NatsStreamSubscriptionConfiguration.SectionName)
+        .Get<NatsStreamSubscriptionConfiguration>()!);
 builder.Services.AddNats();
 
 var app = builder.Build();
@@ -22,5 +25,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 NatsInitializer.StartNatsProcessing(app.Services, NatsServiceName.ConsumerService);
+NatsInitializer.StartStreamsMessageProcessing(app.Services);
 
 app.Run();

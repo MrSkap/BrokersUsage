@@ -25,7 +25,7 @@ public class StreamInitializer : NatsClient, IStreamInitializer
         }
 
         var jsm = CurrentConnection.CreateJetStreamManagementContext();
-        var names = jsm.GetStreamNames();
+        var names = GetStreamNames(jsm);
 
         var existingStreams = _configuration.Streams.Where(x => names.Contains(x.StreamName));
         Logger.Information("This streams are already exist: {Streams}", existingStreams);
@@ -58,7 +58,20 @@ public class StreamInitializer : NatsClient, IStreamInitializer
         }
         catch (Exception e)
         {
-            Logger.Error("Failed to create new stream {Stream}", configuration.StreamName, e);
+            Logger.Error("Failed to create new stream {Stream} \n {Ex}", configuration.StreamName, e);
+        }
+    }
+
+    private IList<string> GetStreamNames(IJetStreamManagement jsm)
+    {
+        try
+        {
+            return jsm.GetStreamNames();
+        }
+        catch (Exception e)
+        {
+            Logger.Information("There are no Nats streams");
+            return [];
         }
     }
 }
