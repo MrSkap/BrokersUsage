@@ -1,19 +1,19 @@
 ﻿namespace Common.Nats;
 
 /// <summary>
-/// Клиент Nats.
+///     Клиент Nats.
 /// </summary>
 public interface INatsClient
 {
     /// <summary>
-    /// Опубликовать сообщение.
+    ///     Опубликовать сообщение.
     /// </summary>
-    /// <param name="message">Сообщение <see cref="MessageBase"/>.</param>
+    /// <param name="message">Сообщение <see cref="MessageBase" />.</param>
     /// <param name="subject">Субъект для публикации.</param>
     void PublishMessage(MessageBase message, string subject);
-    
+
     /// <summary>
-    /// Подписаться на субъект.
+    ///     Подписаться на субъект.
     /// </summary>
     /// <param name="subject">Субъкт для подписки.</param>
     /// <returns>Обозреватель новых сообщений.</returns>

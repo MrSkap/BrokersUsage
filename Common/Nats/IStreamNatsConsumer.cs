@@ -1,12 +1,12 @@
 ﻿namespace Common.Nats;
 
 /// <summary>
-/// Консъмер Nats JetStream.
+///     Консъмер Nats JetStream.
 /// </summary>
 public interface IStreamNatsConsumer
 {
     /// <summary>
-    /// Подписаться на стрим.
+    ///     Подписаться на стрим.
     /// </summary>
     /// <param name="consumerName">Имя консьюмера.</param>
     /// <param name="stream">Название стрима.</param>

@@ -7,7 +7,7 @@ using Serializer = ProtoBuf.Serializer;
 namespace Common.Nats;
 
 /// <summary>
-/// Базовый клиент Nats. Подключается к Nats и подзволяет отправлять и получать сообщения в Nats Core.
+///     Базовый клиент Nats. Подключается к Nats и подзволяет отправлять и получать сообщения в Nats Core.
 /// </summary>
 public class NatsClient : INatsClient, IDisposable
 {
@@ -15,7 +15,7 @@ public class NatsClient : INatsClient, IDisposable
     private readonly Dictionary<string, SubscriptionObject> _activeSubscriptionObjects = new();
     private readonly ConnectionFactory _connectionFactory;
     protected readonly NatsConnectionOptions ConnectionOptions;
-    protected IConnection? CurrentConnection = null;
+    protected IConnection? CurrentConnection;
 
     public NatsClient(NatsConnectionOptions connectionOptions)
     {
@@ -34,7 +34,7 @@ public class NatsClient : INatsClient, IDisposable
     {
         try
         {
-            if (CurrentConnection?.State is not ConnState.CONNECTED) 
+            if (CurrentConnection?.State is not ConnState.CONNECTED)
                 throw new Exception("No connection to nats");
 
             using var memoryStream = new MemoryStream();
@@ -52,9 +52,9 @@ public class NatsClient : INatsClient, IDisposable
     {
         if (_activeSubscriptionObjects.TryGetValue(subject, out var activeSubscription))
             return activeSubscription.Observable;
-        if (CurrentConnection?.State is not ConnState.CONNECTED) 
+        if (CurrentConnection?.State is not ConnState.CONNECTED)
             throw new Exception("No connection to nats");
-        
+
         var subscription = CurrentConnection.SubscribeAsync(subject);
         var natsObservable = subscription.ToObservable();
         var observable = Observable.Create<MessageBase>(observer =>

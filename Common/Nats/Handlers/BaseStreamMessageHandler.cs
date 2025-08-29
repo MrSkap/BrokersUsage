@@ -5,10 +5,11 @@ using Serilog;
 namespace Common.Nats.Handlers;
 
 /// <summary>
-/// Базовый обработчик стримов для получения сообщений Nats. Подпусывается на указанный субъект и передает сообщения на конкретный обработчик используя MediatR.
+///     Базовый обработчик стримов для получения сообщений Nats. Подпусывается на указанный субъект и передает сообщения на
+///     конкретный обработчик используя MediatR.
 /// </summary>
 /// <remarks>Чтобы обрабатывать конкретные сообщения, необходимо создать соответствующий обработчик.</remarks>
-/// <example><see cref="HelloMessageHandler"/>.</example>
+/// <example><see cref="HelloMessageHandler" />.</example>
 public class BaseStreamMessageHandler : IBaseStreamMessageHandler
 {
     private static readonly ILogger Logger = Log.ForContext<BaseStreamMessageHandler>();

@@ -5,14 +5,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Common.Nats.Initializers;
 
 /// <summary>
-/// Класс для иницилизации объектов, необходимых для работы с Nats.
+///     Класс для иницилизации объектов, необходимых для работы с Nats.
 /// </summary>
 public class NatsInitializer
 {
     /// <summary>
-    /// Начать обработку сообщений.
+    ///     Начать обработку сообщений.
     /// </summary>
-    /// <param name="provider">Провайдер. <see cref="IServiceProvider"/>.</param>
+    /// <param name="provider">Провайдер. <see cref="IServiceProvider" />.</param>
     /// <param name="serviceName">Название сервиса. Используется в качестве идентификатора подписчика на стримы Nats.</param>
     public static void StartNatsProcessing(IServiceProvider provider, string serviceName)
     {
@@ -21,9 +21,9 @@ public class NatsInitializer
     }
 
     /// <summary>
-    /// Инициализировать стримы Nats.
+    ///     Инициализировать стримы Nats.
     /// </summary>
-    /// <param name="provider">Провайдер. <see cref="IServiceProvider"/>.</param>
+    /// <param name="provider">Провайдер. <see cref="IServiceProvider" />.</param>
     public static void InitNatsStreams(IServiceProvider provider)
     {
         var initializer = provider.GetRequiredService<IStreamInitializer>();

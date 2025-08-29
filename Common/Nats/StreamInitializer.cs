@@ -18,8 +18,10 @@ public class StreamInitializer : NatsClient, IStreamInitializer
 
 
     /// <inheritdoc />
-    /// <remarks>Инициализирует стримы указанные в конфигурации <see cref="NatsPersistenceConfiguration"/>.
-    /// Создает новые стримы, если их не удалось обнаружить в Nats.</remarks>
+    /// <remarks>
+    ///     Инициализирует стримы указанные в конфигурации <see cref="NatsPersistenceConfiguration" />.
+    ///     Создает новые стримы, если их не удалось обнаружить в Nats.
+    /// </remarks>
     public void InitStreams()
     {
         if (CurrentConnection?.State is not ConnState.CONNECTED)
