@@ -7,6 +7,9 @@ using Serializer = ProtoBuf.Serializer;
 
 namespace Common.Nats;
 
+/// <summary>
+/// Консьюмер стримов Nats. Подключается к Nats и позволяет подписываться для получения сообщений.
+/// </summary>
 public class StreamNatsConsumer : NatsClient, IStreamNatsConsumer, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<StreamNatsConsumer>();

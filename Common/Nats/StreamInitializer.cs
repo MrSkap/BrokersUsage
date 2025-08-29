@@ -16,9 +16,13 @@ public class StreamInitializer : NatsClient, IStreamInitializer
         _configuration = configuration;
     }
 
+
+    /// <inheritdoc />
+    /// <remarks>Инициализирует стримы указанные в конфигурации <see cref="NatsPersistenceConfiguration"/>.
+    /// Создает новые стримы, если их не удалось обнаружить в Nats.</remarks>
     public void InitStreams()
     {
-        if (CurrentConnection.State is not ConnState.CONNECTED)
+        if (CurrentConnection?.State is not ConnState.CONNECTED)
         {
             Logger.Error("Can`t init Nats streams. No connection to Nats");
             throw new Exception("No connection to Nats");

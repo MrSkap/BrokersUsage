@@ -5,6 +5,9 @@ using Serializer = ProtoBuf.Serializer;
 
 namespace Common.Nats;
 
+/// <summary>
+/// Продьюсер Nats. Подключается к Nats и позволяет публиковать сообщения.
+/// </summary>
 public class StreamNatsProducer : NatsClient, IStreamNatsProducer
 {
     private const int Timeout = 30000;

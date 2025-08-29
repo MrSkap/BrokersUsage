@@ -1,9 +1,15 @@
 ﻿using Common.Nats.Configuration;
+using Common.Nats.Handlers.Hello;
 using MediatR;
 using Serilog;
 
 namespace Common.Nats.Handlers;
 
+/// <summary>
+/// Базовый обработчик сообщений Nats. Подпусывается на указанный субъект и передает сообщения на конкретный обработчик используя MediatR.
+/// </summary>
+/// <remarks>Чтобы обрабатывать конкретные сообщения, необходимо создать соответствующий обработчик.</remarks>
+/// <example><see cref="HelloMessageHandler"/>.</example>
 public class BaseMessageHandler : IBaseMessageHandler
 {
     private static readonly ILogger Logger = Log.ForContext<BaseMessageHandler>();
@@ -16,10 +22,13 @@ public class BaseMessageHandler : IBaseMessageHandler
         _mediator = mediator;
     }
 
-    public void StartMessageProcessing(string serviceName = "")
+    public void StartMessageProcessing(string subject)
     {
-        Logger.Information("Start nats message processing");
-        _client.SubscribeOnSubject($"{serviceName}.{NatsSubjectName.HelloSubject}")
+        if (string.IsNullOrEmpty(subject))
+            throw new ArgumentException("Nats subject is empty");
+        
+        Logger.Information("Start nats message processing {Subject}", subject);
+        _client.SubscribeOnSubject(subject)
             .Subscribe(OnMessage);
     }
 

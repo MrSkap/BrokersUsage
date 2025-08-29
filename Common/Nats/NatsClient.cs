@@ -6,13 +6,16 @@ using Serializer = ProtoBuf.Serializer;
 
 namespace Common.Nats;
 
+/// <summary>
+/// Базовый клиент Nats. Подключается к Nats и подзволяет отправлять и получать сообщения в Nats Core.
+/// </summary>
 public class NatsClient : INatsClient, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<NatsClient>();
     private readonly Dictionary<string, SubscriptionObject> _activeSubscriptionObjects = new();
     private readonly ConnectionFactory _connectionFactory;
     protected readonly NatsConnectionOptions ConnectionOptions;
-    protected IConnection CurrentConnection;
+    protected IConnection? CurrentConnection = null;
 
     public NatsClient(NatsConnectionOptions connectionOptions)
     {
@@ -23,7 +26,7 @@ public class NatsClient : INatsClient, IDisposable
 
     public void Dispose()
     {
-        CurrentConnection.Dispose();
+        CurrentConnection?.Dispose();
         foreach (var active in _activeSubscriptionObjects) active.Value.Dispose();
     }
 
@@ -31,7 +34,8 @@ public class NatsClient : INatsClient, IDisposable
     {
         try
         {
-            if (CurrentConnection.State is not ConnState.CONNECTED) throw new Exception("No connection to nats");
+            if (CurrentConnection?.State is not ConnState.CONNECTED) 
+                throw new Exception("No connection to nats");
 
             using var memoryStream = new MemoryStream();
             Serializer.Serialize(memoryStream, message);
@@ -48,6 +52,9 @@ public class NatsClient : INatsClient, IDisposable
     {
         if (_activeSubscriptionObjects.TryGetValue(subject, out var activeSubscription))
             return activeSubscription.Observable;
+        if (CurrentConnection?.State is not ConnState.CONNECTED) 
+            throw new Exception("No connection to nats");
+        
         var subscription = CurrentConnection.SubscribeAsync(subject);
         var natsObservable = subscription.ToObservable();
         var observable = Observable.Create<MessageBase>(observer =>
